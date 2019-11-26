@@ -4,12 +4,15 @@ import tkinter as tk
 from tkinter import HORIZONTAL
 from tkinter.ttk import Progressbar
 
-
-class GUIframework(tk.Frame):
+class IPfunctions(tk.Frame):
     def __init__(self, parent, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
-        self.scanning = tk.Label(self, text="Scanning all IPs...")
+
+        self.ipadded = tk.Label(self, text="Ip address has been added to IPlist.txt!")
+        self.scanning = tk.Label(self, text="Scanning IPlist.txt please wait...")
         self.newnoip = tk.Label(self, text="Please enter a valid IP/Domain")
+        self.progress = Progressbar(self, orient=HORIZONTAL, length=70, mode='indeterminate')
+
 
     def newip(self):
         '''
@@ -54,9 +57,8 @@ class GUIframework(tk.Frame):
         pings them individually and checks if they are UP/DOWN!
         '''
         self.scanning.grid(row=4, column=1)
-        progress = Progressbar(self, orient=HORIZONTAL, length=50, mode='indeterminate')
-        progress.grid(row=2, column=2)
-        self.update_idletasks()
+        self.progress.grid(row=2, column=2)
+        #self.progress.grid(row=2, column=2)
         ipopen = open("IPlist.txt")
 
         # Opens the IPlist.txt file and strips each of the lines so that we can read individually.
@@ -67,7 +69,7 @@ class GUIframework(tk.Frame):
         with open("IPlist.txt", "r") as available_ips_file:
             for ip in ips:  # Pings each line from the IPlist.txt file
                 response = os.system('ping -a -n 1 {}'.format(ip))
-                progress['value'] += 20
+                self.progress['value'] += 20
                 self.update_idletasks()
                 time.sleep(0.5)
 
@@ -78,10 +80,8 @@ class GUIframework(tk.Frame):
                 else:  # other error
                     print("- Bad parameters or other error!")
 
-        self.scanning.grid_forget()
-
-        return progress.grid_forget()
+        return self.progress.grid_forget(), self.scanning.grid_forget()
 
 
     def close_window(self):
-        root.destroy()
+        self.root.destroy()
