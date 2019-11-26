@@ -3,7 +3,7 @@ This script will ping every IP on a txt document, and report data for each indiv
 
 *Future Updates*
 
-- Adding popup GUI displaying the IPs on the txt file when the list of IPs button gets pressed.
+- GUI containing the list of IPs on IPlist.txt, which will replace the contents function only displaying a print of the list at the moment.
 
 *Added*
 
