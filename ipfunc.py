@@ -4,7 +4,9 @@ import tkinter as tk
 from tkinter import HORIZONTAL
 from tkinter.ttk import Progressbar
 
+
 class IPfunctions(tk.Frame):
+    """This class uses the tkinter frame, and is used on the GUI on main.py"""
     def __init__(self, parent, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
 
@@ -13,12 +15,10 @@ class IPfunctions(tk.Frame):
         self.newnoip = tk.Label(self, text="Please enter a valid IP/Domain")
         self.progress = Progressbar(self, orient=HORIZONTAL, length=70, mode='indeterminate')
 
-
     def newip(self):
-        '''
+        """
         This function adds a new IP/Domain to the IPlist.TXT file.
-        '''
-
+        """
         self.data = self.e1.get()
         data = self.data
 
@@ -33,11 +33,11 @@ class IPfunctions(tk.Frame):
                 ipopen.close()
                 self.newnoip.grid_forget()
 
-
-    def contents(self):
-        '''
+    @staticmethod
+    def contents():
+        """
         This function reads the IP/Domain on the IPlist.TXT file and outputs them.
-        '''
+        """
         ipopen = open("IPlist.txt", "r+")
 
         # Opens the IPlist.txt file and strips each of the lines so that we can read individually.
@@ -50,15 +50,13 @@ class IPfunctions(tk.Frame):
                 # ipopen.seek(0)
                 ipopen.close()
 
-
     def scanlist(self):
-        '''
+        """
         This function reads all of the IPs/Domain on the IPlist.TXT then
         pings them individually and checks if they are UP/DOWN!
-        '''
+        """
         self.scanning.grid(row=4, column=1)
         self.progress.grid(row=2, column=2)
-        #self.progress.grid(row=2, column=2)
         ipopen = open("IPlist.txt")
 
         # Opens the IPlist.txt file and strips each of the lines so that we can read individually.
@@ -82,6 +80,5 @@ class IPfunctions(tk.Frame):
 
         return self.progress.grid_forget(), self.scanning.grid_forget()
 
-
     def close_window(self):
-        self.root.destroy()
+        self.destroy()

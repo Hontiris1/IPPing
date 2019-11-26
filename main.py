@@ -3,6 +3,7 @@ import tkinter as tk
 
 
 class GUIframeworkmain(ipfunc.IPfunctions):
+    """This class communicates with ipfunc.py using the IPfunctions class"""
     def __init__(self, parent, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
 
@@ -19,7 +20,9 @@ class GUIframeworkmain(ipfunc.IPfunctions):
 
 
 class App(tk.Tk):
-     def __init__(self):
+    """This class uses the Tkinter module and its used to call buttons labels change
+    certain settings with in Tkinter module etc... onto the the GUI"""
+    def __init__(self):
          super().__init__()
 
          self.title("IPPing")
@@ -28,6 +31,7 @@ class App(tk.Tk):
          #calls the GUIframework class onto Tkinter GUI module
          self.ip_function = GUIframeworkmain(self)
          self.ip_function.grid()
+
 
 if __name__ == '__main__':
     App().mainloop()
