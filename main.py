@@ -18,7 +18,7 @@ class GUIframeworkmain(ipfunc.IPfunctions):
 
         tk.Button(self, bg="green", text='Add New IP', command=self.newip).grid(row=0, column=0, pady=2),
         tk.Button(self, text='Open IPlist', command=self.contents).grid(row=0, column=1, sticky=tk.SE, pady=2),
-        tk.Button(self, text='Open Reports', command=self.reports).grid(row=0, column=2, sticky=tk.SE, pady=2),
+        tk.Button(self, text='Clear Reports', command=self.reports).grid(row=0, column=2, sticky=tk.SE, pady=2),
         tk.Button(self, text='Ping All IPs', command=self.scanlist).grid(row=0, column=3, sticky=tk.SE, pady=2),
         tk.Button(self, text='Exit', command=self.quit).grid(row=0, column=4, pady=2)
 
@@ -40,7 +40,7 @@ class App(tk.Tk):
         self.title("IPPing")
         self.geometry("450x155+900+300")
 
-        self.image1 = tk.PhotoImage(file="C:\\Users\\Us3r\\PycharmProjects\\Ip_ping\\bgg.png")
+        self.image1 = tk.PhotoImage(file="images\\bgg.png")
         self.label_for_image = tk.Label(self, image=self.image1)
         self.label_for_image.grid()
 

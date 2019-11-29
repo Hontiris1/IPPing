@@ -16,15 +16,18 @@ class IPfunctions(tk.Frame):
     def __init__(self, parent, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
 
-        # self.configure(bg='grey')
+        # Positive Notifications
         self.ipadded = tk.Label(self, text="IP has been added to IPlist.txt!", fg="green", font=("Arial Bold", 9))
         self.scan_done = tk.Label(self, text="All IPs are Up!", fg="green", font=("Arial Bold", 9))
-        self.scan_down = tk.Label(self, text="One or more IPs are down!", fg="red", font=("Arial Bold", 9))
         self.scanning = tk.Label(self, text="Scanning IPlist.txt please wait...", fg="green", font=("Arial Bold", 9))
+        self.reports_cleared = tk.Label(self, text="Recent reports cleared...", fg="green", font=("Arial Bold", 9))
+        # Negative Notifications
+        self.scan_down = tk.Label(self, text="One or more IPs are down!", fg="red", font=("Arial Bold", 9))
         self.newnoip = tk.Label(self, text="Please enter a valid IP/Domain", fg="red", font=("Arial Bold", 9))
         self.dupe_detected = tk.Label(self, text="Dupe IP/Domain detected", fg="red", font=("Arial Bold", 9))
         self.invalid_detected = tk.Label(self, text="Invalid IPv4/IPv6 detected", fg="red", font=("Arial Bold", 9))
         self.bad_ip = tk.Label(self, text="An IP has bad parameters", fg="red", font=("Arial Bold", 9))
+        # Others
         self.progress = Progressbar(self, orient=HORIZONTAL, length=70, mode='indeterminate')
 
     def checkip(self):
@@ -77,11 +80,11 @@ class IPfunctions(tk.Frame):
         input_data = self.e1.get()
         ipopen = open("IPlist.txt")
 
-        if len(input_data) > 15 or "":
-            print("[Debug Error] Input data lenght was more than 15 characters!")
-            return self.newnoip.grid(row=5, column=1), ipopen.seek(0)
+        if len(input_data) > 15 or " ":
+            return ipopen.seek(0), ipopen.close(), self.newnoip.grid(row=5, column=1), \
+                   print("[Debug Error] Input data has more than 15 characters!")
         else:
-            print("[Debug] Input data lenght is less than 15 characters")
+            print("[Debug] Input data is less than 15 characters, Passing onto next line")
 
         try:
             input_data = int(input_data) or float(input_data)
@@ -105,11 +108,11 @@ class IPfunctions(tk.Frame):
                     self.forget_labels()
                     self.ipadded.grid(row=5, column=1)
             else:
-                self.no_ip = messagebox.showerror('IPPing', 'Domain address is incorrect or there is a duplicate!')
+                self.no_ip = messagebox.showerror('IPPing', 'Please enter a valid IP/Domain')
                 self.newnoip.grid(row=5, column=1)
                 print("[Debug Error] Incorrect Domain entry or is duplicate!")
 
-        return ipopen.seek(0)
+        return ipopen.seek(0), ipopen.close(),
 
     def contents(self):
         """
@@ -131,10 +134,14 @@ class IPfunctions(tk.Frame):
     def reports(self):
         ipreport = open("IPreport.txt", "w+")
         self.forget_labels()
-        return ipreport.close(), startfile("IPreport.txt")
+        self.reports_cleared.grid(row=5, column=1)
+        return ipreport.close()  # startfile("IPreport.txt")
 
     def timestamp(self, fname, fmt='%Y-%m-%d-%H-%M-%S_{fname}'):
         return datetime.datetime.now().strftime(fmt).format(fname=fname)
+
+    def timestamp2(self, fmt='%Y-%m-%d-%H-%M-%S'):
+        return datetime.datetime.now().strftime(fmt).format()
 
     def scanlist(self):
         """
@@ -146,7 +153,10 @@ class IPfunctions(tk.Frame):
         self.progress.grid(row=2, column=2)
         report = []
         ipopen = open("IPlist.txt")
-        ipreport = open("IPreport.txt")
+        ipreport = open("IPreport.txt", "a+")
+
+        with open('IPreport.txt', mode='a') as add:
+            add.write("{}\n".format(self.timestamp2))
 
         # Opens the IPlist.txt file and strips each of the lines so that we can read individually.
         with open("IPlist.txt", "r") as ips_file:
@@ -178,9 +188,10 @@ class IPfunctions(tk.Frame):
                         self.bad_ip.grid(row=4, column=1)
                         break
 
-        with open(self.timestamp('IP Reports.txt'), 'w+') as add:
+        with open(self.timestamp(' Ping Reports.txt'), 'w+') as add:
             for ip in report:
                 add.write(ip)
+                # add.close()
 
         if self.response == 0:
             self.scan_done.grid(row=4, column=1)
@@ -188,13 +199,14 @@ class IPfunctions(tk.Frame):
             self.scan_down.grid(row=4, column=1)
             print("- Error: Bad parameters or is Down!")
 
-        return self.progress.grid_forget(), self.scanning.grid_forget(), ipreport.close(), \
-                ipopen.close(), startfile("IPreport.txt")
+        return self.progress.grid_forget(), self.scanning.grid_forget(), ipreport.close(), ipopen.seek(0), \
+               ipopen.close(), startfile("IPreport.txt")
 
     def forget_labels(self):
         return self.bad_ip.grid_forget(), self.ipadded.grid_forget(), self.newnoip.grid_forget(), \
                self.scanning.grid_forget(), self.scan_done.grid_remove(), self.scan_down.grid_remove(), \
-               self.invalid_detected.grid_forget(), self.dupe_detected.grid_forget()
+               self.invalid_detected.grid_forget(), self.dupe_detected.grid_forget(), self.newnoip.grid_forget(), \
+               self.reports_cleared.grid_forget()
 
     def close_window(self):
         self.destroy()
