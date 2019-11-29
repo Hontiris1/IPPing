@@ -1,3 +1,8 @@
+#############################################################
+#   Author: Hontiris1                                       #
+#   Github: https://github.com/Hontiris1/IPPing             #
+#############################################################
+from fileinput import filename
 import ipfunc as ipfunc
 import tkinter as tk
 
@@ -33,7 +38,11 @@ class App(tk.Tk):
         super().__init__()
 
         self.title("IPPing")
-        self.geometry("450x100+900+300")
+        self.geometry("450x155+900+300")
+
+        self.image1 = tk.PhotoImage(file="C:\\Users\\Us3r\\PycharmProjects\\Ip_ping\\bgg.png")
+        self.label_for_image = tk.Label(self, image=self.image1)
+        self.label_for_image.grid()
 
         # calls the GUIframework class onto Tkinter GUI module
         self.ip_function = GUIframeworkmain(self)
