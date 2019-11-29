@@ -1,5 +1,5 @@
 # IPPing
-This script will ping every IP on a txt document, and report data for each individual IP.
+This script main purpose is to ping every IP on a txt file, and report data for each individual IP.
 
 *Future Updates*
 
