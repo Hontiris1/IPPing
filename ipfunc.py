@@ -144,6 +144,7 @@ class IPfunctions(tk.Frame):
         self.forget_labels()
         self.scanning.grid(row=4, column=1)
         self.progress.grid(row=2, column=2)
+        report = []
         ipopen = open("IPlist.txt")
         ipreport = open("IPreport.txt")
 
@@ -160,34 +161,35 @@ class IPfunctions(tk.Frame):
                 time.sleep(0.8)
 
                 if self.response == 0:  # Up
-                    with open(self.timestamp('Ping Reports.txt'), 'w') as add:
+                    with open('IPreport.txt', mode='a') as add:
                         add.write("- IP: {} is UP!\n".format(ip))
-                    with open('IPreport.txt', mode='w') as add:
-                        add.write("- IP: {} is UP!\n".format(ip))
-                    print("- Ip Address:", ip, 'is up!')
+                        report.append("- IP: {} is UP!\n".format(ip))
+                        print("- Ip Address:", ip, 'is up!')
                 elif self.response <= 512:  # Down
-                    with open(self.timestamp('Ping Reports.txt'), 'w') as add:
+                    with open('IPreport.txt', mode='a') as add:
                         add.write("- IP: {} is Down!\n".format(ip))
-                    with open('IPreport.txt', mode='w') as add:
-                        add.write("- IP: {} is Down!\n".format(ip))
-                    print("- IP Address:", ip, 'is down!')
+                        report.append("- IP: {} is Down!\n".format(ip))
+                        print("- IP Address:", ip, 'is down!')
                 else:  # other error
-                    with open(self.timestamp('Ping Reports.txt'), 'w') as add:
+                    with open('IPreport.txt', mode='a') as add:
                         add.write("- IP: {} (Error: Bad parameters or is Down!)\n".format(ip))
-                    with open('IPreport.txt', mode='w') as add:
-                        add.write("- IP: {} (Error: Bad parameters or is Down!)\n".format(ip))
+                        report.append("- IP: {} (Error: Bad parameters or is Down!".format(ip))
                         print("- Error: Bad parameters or is Down!")
                         self.bad_ip.grid(row=4, column=1)
                         break
 
-            if self.response == 0:
-                self.scan_done.grid(row=4, column=1)
-            else:
-                self.scan_down.grid(row=4, column=1)
-                print("- Error: Bad parameters or is Down!")
+        with open(self.timestamp('IP Reports.txt'), 'w+') as add:
+            for ip in report:
+                add.write(ip)
+
+        if self.response == 0:
+            self.scan_done.grid(row=4, column=1)
+        else:
+            self.scan_down.grid(row=4, column=1)
+            print("- Error: Bad parameters or is Down!")
 
         return self.progress.grid_forget(), self.scanning.grid_forget(), ipreport.close(), \
-               ipopen.close(), startfile("IPreport.txt")
+                ipopen.close(), startfile("IPreport.txt")
 
     def forget_labels(self):
         return self.bad_ip.grid_forget(), self.ipadded.grid_forget(), self.newnoip.grid_forget(), \
