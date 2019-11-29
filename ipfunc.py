@@ -2,12 +2,11 @@ import os
 import time
 import tkinter as tk
 from time import sleep
-from tkinter import HORIZONTAL
-from tkinter.ttk import Progressbar
 from tkinter import messagebox
 from os import startfile
 import socket
 import datetime
+from tkinter.ttk import Progressbar
 
 
 class IPfunctions(tk.Frame):
@@ -21,18 +20,27 @@ class IPfunctions(tk.Frame):
         self.scan_done = tk.Label(self, text="All IPs are Up!", fg="green", font=("Arial Bold", 9))
         self.scanning = tk.Label(self, text="Scanning IPlist.txt please wait...", fg="green", font=("Arial Bold", 9))
         self.reports_cleared = tk.Label(self, text="Recent reports cleared...", fg="green", font=("Arial Bold", 9))
+
         # Negative Notifications
         self.scan_down = tk.Label(self, text="One or more IPs are down!", fg="red", font=("Arial Bold", 9))
         self.newnoip = tk.Label(self, text="Please enter a valid IP/Domain", fg="red", font=("Arial Bold", 9))
         self.dupe_detected = tk.Label(self, text="Dupe IP/Domain detected", fg="red", font=("Arial Bold", 9))
         self.invalid_detected = tk.Label(self, text="Invalid IPv4/IPv6 detected", fg="red", font=("Arial Bold", 9))
         self.bad_ip = tk.Label(self, text="An IP has bad parameters", fg="red", font=("Arial Bold", 9))
+
         # Others
-        self.progress = Progressbar(self, orient=HORIZONTAL, length=70, mode='indeterminate')
+        self.progress = Progressbar(self, orient=tk.HORIZONTAL, length=70, mode='indeterminate')
+
+    def cls(self):
+        # This is horrible way to handle this? Maybe, but it solves this problem for now. :)
+        return print('\n' * 5)
+        # os.system('cls' if os.name == 'nt' else 'clear')
 
     def checkip(self):
+
         """This function will check the IP entered by the user, it will make sure
         that its a proper IPv4 or IPv6 IP address then return a True or False"""
+
         self.forget_labels()
         try:
             socket.inet_aton(self.e1.get())
@@ -46,8 +54,10 @@ class IPfunctions(tk.Frame):
         return self.validip
 
     def checkduplicate(self):
-        """This function checks for a duplicate IP or Domain on the IPlist.txt file then returns
-        True or False"""
+
+        """This function checks for a duplicate IP or Domain on the IPlist.txt file
+        then returns True or False"""
+
         self.forget_labels()
         ipopen = open("IPlist.txt", "r")
 
@@ -68,12 +78,18 @@ class IPfunctions(tk.Frame):
         return self.dupeip, ipopen.seek(0), ipopen.close()
 
     def newip(self):
+
         """
          This function adds a new IP/Domain to the IPlist.TXT file.
+
          Before anything it will check that the IP/Domain has 15 or less characters.
-         Then it will proceed to check if checkip and checkduplicate are both True.
-         Once everything checks out and there is no issues the IP/domain will be added to IPlist.txt
+         Then newip will check if input_data is a str or number, if its a number ip
+         it will proceed to check if self.validip is true as well as self.dupeip
+
+         If input_data is a str newip will proceed to check that the str has a "." and
+         that self.dupeip is true
          """
+
         self.forget_labels()
         self.checkip()
         self.checkduplicate()
@@ -97,10 +113,10 @@ class IPfunctions(tk.Frame):
             else:
                 self.no_ip = messagebox.showerror('IPPing', 'Invalid IP or duplicate!')
                 print("[Debug Error] Is not valid IPv4/IPv6 or is duplicate on IPlist.txt")
-            print("[Debug] User input is int ")
+            print("[Debug] User input is int ")  # This section detects integers and floats
         except ValueError:
             input_data = str(input_data)
-            print("[Debug] User input is Str")
+            print("[Debug] User input is Str")  # This section detects the input as a str
             if "." in input_data and self.dupeip:
                 with open('IPlist.txt', mode='a') as add_domain:
                     add_domain.write("{}\n".format(input_data))
@@ -115,9 +131,12 @@ class IPfunctions(tk.Frame):
         return ipopen.seek(0), ipopen.close(),
 
     def contents(self):
+
         """
         This function reads the IP/Domain on the IPlist.TXT file and outputs them.
         """
+
+        print("[Debug] IPlist.txt has been opened!")
         self.forget_labels()
         ipopen = open("IPlist.txt")
 
@@ -132,9 +151,14 @@ class IPfunctions(tk.Frame):
         return ipopen.seek(0), ipopen.close(), startfile("IPlist.txt")
 
     def reports(self):
+        """This function will clear the contents of reports, will also display labels
+        and remove previous ones by triggering forget_labels function"""
+
+        self.cls()
         ipreport = open("IPreport.txt", "w+")
         self.forget_labels()
         self.reports_cleared.grid(row=5, column=1)
+        print("[Debug] Recent Reports have been cleared!")
         return ipreport.close()  # startfile("IPreport.txt")
 
     def timestamp(self, fname, fmt='%Y-%m-%d-%H-%M-%S_{fname}'):
@@ -144,19 +168,26 @@ class IPfunctions(tk.Frame):
         return datetime.datetime.now().strftime(fmt).format()
 
     def scanlist(self):
+
         """
         This function reads all of the IPs/Domain on the IPlist.TXT then
         pings them individually and checks if they are UP/DOWN!
         """
+
         self.forget_labels()
         self.scanning.grid(row=4, column=1)
         self.progress.grid(row=2, column=2)
         report = []
+        responses = []
         ipopen = open("IPlist.txt")
         ipreport = open("IPreport.txt", "a+")
 
         with open('IPreport.txt', mode='a') as add:
-            add.write("{}\n".format(self.timestamp2))
+            #add.write("{}\n".format(self.timestamp2))
+            add.write("----------------------\n")
+            add.write(self.timestamp2() + "\n")
+            add.write("Recent Reports Below\n")
+            add.write("----------------------\n")
 
         # Opens the IPlist.txt file and strips each of the lines so that we can read individually.
         with open("IPlist.txt", "r") as ips_file:
@@ -175,17 +206,22 @@ class IPfunctions(tk.Frame):
                         add.write("- IP: {} is UP!\n".format(ip))
                         report.append("- IP: {} is UP!\n".format(ip))
                         print("- Ip Address:", ip, 'is up!')
-                elif self.response <= 512:  # Down
+                        # self.cls()  # Remove this line if annoying
+                        responses.append(self.response)
+                elif self.response == 1:  # 512 Down
                     with open('IPreport.txt', mode='a') as add:
                         add.write("- IP: {} is Down!\n".format(ip))
                         report.append("- IP: {} is Down!\n".format(ip))
                         print("- IP Address:", ip, 'is down!')
+                        # self.cls()  # Remove this line if annoying :)
+                        responses.append(self.response)
                 else:  # other error
                     with open('IPreport.txt', mode='a') as add:
                         add.write("- IP: {} (Error: Bad parameters or is Down!)\n".format(ip))
                         report.append("- IP: {} (Error: Bad parameters or is Down!".format(ip))
                         print("- Error: Bad parameters or is Down!")
                         self.bad_ip.grid(row=4, column=1)
+                        responses.append(self.response)
                         break
 
         with open(self.timestamp(' Ping Reports.txt'), 'w+') as add:
@@ -193,16 +229,22 @@ class IPfunctions(tk.Frame):
                 add.write(ip)
                 # add.close()
 
-        if self.response == 0:
-            self.scan_done.grid(row=4, column=1)
-        else:
+        if 1 in responses:
             self.scan_down.grid(row=4, column=1)
-            print("- Error: Bad parameters or is Down!")
+            print("[Debug Error] One or more IPs are down!")
+        else:
+            self.scan_done.grid(row=4, column=1)
+            # self.scan_down.grid(row=4, column=1)
+            print("[Debug] Scan done, no bad responses found all IPs are up!")
 
         return self.progress.grid_forget(), self.scanning.grid_forget(), ipreport.close(), ipopen.seek(0), \
-               ipopen.close(), startfile("IPreport.txt")
+               ipopen.close(), startfile("IPreport.txt"), print("[Debug] This are the ping responses per IP"), \
+                print(responses)
 
     def forget_labels(self):
+
+        """This function removes all the label txt notifications that the GUI displays"""
+
         return self.bad_ip.grid_forget(), self.ipadded.grid_forget(), self.newnoip.grid_forget(), \
                self.scanning.grid_forget(), self.scan_done.grid_remove(), self.scan_down.grid_remove(), \
                self.invalid_detected.grid_forget(), self.dupe_detected.grid_forget(), self.newnoip.grid_forget(), \

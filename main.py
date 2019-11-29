@@ -1,15 +1,19 @@
 #############################################################
 #   Author: Hontiris1                                       #
 #   Github: https://github.com/Hontiris1/IPPing             #
+#   Description: This script main purpose is to ping        #
+#   - every IP on a txt file, and report data for each      #
+#   - individual IP.                                        #
 #############################################################
 from fileinput import filename
 import ipfunc as ipfunc
 import tkinter as tk
+import threading
+import os
 
 
 class GUIframeworkmain(ipfunc.IPfunctions):
     """This class communicates with ipfunc.py file using the IPfunctions class and objects"""
-
     def __init__(self, parent, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
 
@@ -48,7 +52,12 @@ class App(tk.Tk):
         self.ip_function = GUIframeworkmain(self)
         self.ip_function.grid()
 
-
 if __name__ == '__main__':
-    """this function runs the App class which is using the Tkinter module"""
+    """this runs the App class which is using the Tkinter module"""
+
+    # print ID of current process
+    print("ID of process running main program: {}".format(os.getpid()))
+    # print name of main thread
+    print("Main thread name: {}".format(threading.main_thread().name))
+
     App().mainloop()
