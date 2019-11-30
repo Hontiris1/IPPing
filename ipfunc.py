@@ -173,6 +173,7 @@ class IPfunctions(tk.Frame):
         This function reads all of the IPs/Domain on the IPlist.TXT then
         pings them individually and checks if they are UP/DOWN!
         """
+        self.manager.start(2)  # Start multi Thread, however its currently not working properly.
 
         self.forget_labels()
         self.scanning.grid(row=4, column=1)
@@ -183,7 +184,7 @@ class IPfunctions(tk.Frame):
         ipreport = open("IPreport.txt", "a+")
 
         with open('IPreport.txt', mode='a') as add:
-            #add.write("{}\n".format(self.timestamp2))
+            # add.write("{}\n".format(self.timestamp2))
             add.write("----------------------\n")
             add.write(self.timestamp2() + "\n")
             add.write("Recent Reports Below\n")
@@ -239,7 +240,7 @@ class IPfunctions(tk.Frame):
 
         return self.progress.grid_forget(), self.scanning.grid_forget(), ipreport.close(), ipopen.seek(0), \
                ipopen.close(), startfile("IPreport.txt"), print("[Debug] This are the ping responses per IP"), \
-                print(responses)
+               print(responses)
 
     def forget_labels(self):
 

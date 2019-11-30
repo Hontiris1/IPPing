@@ -8,8 +8,8 @@
 from fileinput import filename
 import ipfunc as ipfunc
 import tkinter as tk
-import threading
-import os
+from threading import Thread
+import time
 
 
 class GUIframeworkmain(ipfunc.IPfunctions):
@@ -30,9 +30,13 @@ class GUIframeworkmain(ipfunc.IPfunctions):
         self.dupeip = False
         self.response = ""
 
+        print("[Debug] Main Thread has been started")
+        self.manager = ThreadManager()
+        self.manager.start(1)
+
+
         self.e1 = tk.Entry(self, bg='grey', fg='white', font=("Arial Bold",))
         self.e1.grid(row=2, column=1)
-
 
 class App(tk.Tk):
     """This class uses the Tkinter module and its used to call buttons labels change
@@ -52,12 +56,36 @@ class App(tk.Tk):
         self.ip_function = GUIframeworkmain(self)
         self.ip_function.grid()
 
+
+class ThreadManager:
+    """Multi Threading manager"""
+    def __init__(self):
+        pass
+
+    def start(self, threads):
+        thread_refs = []
+        for i in range(threads):
+            t = MyThread(i)  # Thread(args=(1,))  # target=test(),
+            t.daemon = True
+            print('starting thread %i' % i)
+            t.start()
+        for t in thread_refs:
+            t.join()
+
+
+class MyThread(Thread):
+    """Multi Threading"""
+    def __init__(self, i):
+        Thread.__init__(self)
+        self.i = i
+
+    def run(self):
+        while True:
+            print('hello from thread # {}'.format(self.i))
+            time.sleep(.25)
+            break
+
+
 if __name__ == '__main__':
     """this runs the App class which is using the Tkinter module"""
-
-    # print ID of current process
-    print("ID of process running main program: {}".format(os.getpid()))
-    # print name of main thread
-    print("Main thread name: {}".format(threading.main_thread().name))
-
     App().mainloop()
