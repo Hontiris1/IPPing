@@ -1,0 +1,2 @@
+DefaultScanFile=True
+DefaultScanDir=

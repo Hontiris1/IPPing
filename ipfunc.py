@@ -1,7 +1,9 @@
 import os
+import re
 import time
 import tkinter as tk
 from time import sleep
+from tkinter import filedialog
 from tkinter import messagebox
 from os import startfile
 import socket
@@ -81,11 +83,9 @@ class IPfunctions(tk.Frame):
 
         """
          This function adds a new IP/Domain to the IPlist.TXT file.
-
          Before anything it will check that the IP/Domain has 15 or less characters.
          Then newip will check if input_data is a str or number, if its a number ip
          it will proceed to check if self.validip is true as well as self.dupeip
-
          If input_data is a str newip will proceed to check that the str has a "." and
          that self.dupeip is true
          """
@@ -96,7 +96,7 @@ class IPfunctions(tk.Frame):
         input_data = self.e1.get()
         ipopen = open("IPlist.txt")
 
-        if len(input_data) > 15 or " ":
+        if len(input_data) > 15 or "":
             return ipopen.seek(0), ipopen.close(), self.newnoip.grid(row=5, column=1), \
                    print("[Debug Error] Input data has more than 15 characters!")
         else:
@@ -173,15 +173,26 @@ class IPfunctions(tk.Frame):
         This function reads all of the IPs/Domain on the IPlist.TXT then
         pings them individually and checks if they are UP/DOWN!
         """
-        self.manager.start(2)  # Start multi Thread, however its currently not working properly.
 
         self.forget_labels()
         self.scanning.grid(row=4, column=1)
         self.progress.grid(row=2, column=2)
         report = []
         responses = []
-        ipopen = open("IPlist.txt")
-        ipreport = open("IPreport.txt", "a+")
+
+        settings = open("Settings.txt")
+        with open("Settings.txt", mode='r') as s:
+            settinglines = [ip.strip() for ip in s.readlines()]
+            print(settinglines)
+
+        if "DefaultScanFile=True" in settinglines[0]:
+            ipopen = open("IPlist.txt")
+            ipreport = open("IPreport.txt", "a+")
+            print("[Debug] Default Scan File detected")
+        else:
+            ipopen = open("{}".format(self.customscandir()))
+            ipreport = open("IPreport.txt", "a+")
+            print("[Debug] Custom Scan File detected")
 
         with open('IPreport.txt', mode='a') as add:
             # add.write("{}\n".format(self.timestamp2))
@@ -191,39 +202,82 @@ class IPfunctions(tk.Frame):
             add.write("----------------------\n")
 
         # Opens the IPlist.txt file and strips each of the lines so that we can read individually.
-        with open("IPlist.txt", "r") as ips_file:
-            ips = [ip.strip() for ip in ips_file.readlines()]
+        with open("Settings.txt", mode='r') as s:
+            settinglines = [ip.strip() for ip in s.readlines()]
+            print(settinglines)
+
+        if "DefaultScanFile=True" in settinglines[0]:
+            with open("IPlist.txt", "r") as ips_file:
+                ips = [ip.strip() for ip in ips_file.readlines()]
+        else:
+            with open("{}".format(self.customscandir()), "r") as ips_file:
+                ips = [ip.strip() for ip in ips_file.readlines()]
 
         # Read each line from the IPlist.txt file
-        with open("IPlist.txt", "r") as available_ips_file:
-            for ip in ips:  # Pings each line from the IPlist.txt file
-                self.response = os.system('ping -a -n 1 {}'.format(ip))
-                self.progress['value'] += 20
-                self.update_idletasks()
-                time.sleep(0.8)
+        with open("Settings.txt", mode='r') as s:
+            settinglines = [ip.strip() for ip in s.readlines()]
+            print(settinglines)
 
-                if self.response == 0:  # Up
-                    with open('IPreport.txt', mode='a') as add:
-                        add.write("- IP: {} is UP!\n".format(ip))
-                        report.append("- IP: {} is UP!\n".format(ip))
-                        print("- Ip Address:", ip, 'is up!')
-                        # self.cls()  # Remove this line if annoying
-                        responses.append(self.response)
-                elif self.response == 1:  # 512 Down
-                    with open('IPreport.txt', mode='a') as add:
-                        add.write("- IP: {} is Down!\n".format(ip))
-                        report.append("- IP: {} is Down!\n".format(ip))
-                        print("- IP Address:", ip, 'is down!')
-                        # self.cls()  # Remove this line if annoying :)
-                        responses.append(self.response)
-                else:  # other error
-                    with open('IPreport.txt', mode='a') as add:
-                        add.write("- IP: {} (Error: Bad parameters or is Down!)\n".format(ip))
-                        report.append("- IP: {} (Error: Bad parameters or is Down!".format(ip))
-                        print("- Error: Bad parameters or is Down!")
-                        self.bad_ip.grid(row=4, column=1)
-                        responses.append(self.response)
-                        break
+        if "DefaultScanFile=True" in settinglines[0]:
+            with open("IPlist.txt", "r") as available_ips_file:
+                for ip in ips:  # Pings each line from the IPlist.txt file
+                    self.response = os.system('ping -a -n 1 {}'.format(ip))
+                    self.progress['value'] += 20
+                    self.update_idletasks()
+                    time.sleep(0.8)
+
+                    if self.response == 0:  # Up
+                        with open('IPreport.txt', mode='a') as add:
+                            add.write("- IP: {} is UP!\n".format(ip))
+                            report.append("- IP: {} is UP!\n".format(ip))
+                            print("- Ip Address:", ip, 'is up!')
+                            # self.cls()  # Remove this line if annoying
+                            responses.append(self.response)
+                    elif self.response == 1:  # 512 Down
+                        with open('IPreport.txt', mode='a') as add:
+                            add.write("- IP: {} is Down!\n".format(ip))
+                            report.append("- IP: {} is Down!\n".format(ip))
+                            print("- IP Address:", ip, 'is down!')
+                            # self.cls()  # Remove this line if annoying :)
+                            responses.append(self.response)
+                    else:  # other error
+                        with open('IPreport.txt', mode='a') as add:
+                            add.write("- IP: {} (Error: Bad parameters or is Down!)\n".format(ip))
+                            report.append("- IP: {} (Error: Bad parameters or is Down!".format(ip))
+                            print("- Error: Bad parameters or is Down!")
+                            self.bad_ip.grid(row=4, column=1)
+                            responses.append(self.response)
+                            break
+        else:
+            with open("{}".format(self.customscandir()), "r") as available_ips_file:
+                for ip in ips:  # Pings each line from the IPlist.txt file
+                    self.response = os.system('ping -a -n 1 {}'.format(ip))
+                    self.progress['value'] += 20
+                    self.update_idletasks()
+                    time.sleep(0.8)
+
+                    if self.response == 0:  # Up
+                        with open('IPreport.txt', mode='a') as add:
+                            add.write("- IP: {} is UP!\n".format(ip))
+                            report.append("- IP: {} is UP!\n".format(ip))
+                            print("- Ip Address:", ip, 'is up!')
+                            # self.cls()  # Remove this line if annoying
+                            responses.append(self.response)
+                    elif self.response == 1:  # 512 Down
+                        with open('IPreport.txt', mode='a') as add:
+                            add.write("- IP: {} is Down!\n".format(ip))
+                            report.append("- IP: {} is Down!\n".format(ip))
+                            print("- IP Address:", ip, 'is down!')
+                            # self.cls()  # Remove this line if annoying :)
+                            responses.append(self.response)
+                    else:  # other error
+                        with open('IPreport.txt', mode='a') as add:
+                            add.write("- IP: {} (Error: Bad parameters or is Down!)\n".format(ip))
+                            report.append("- IP: {} (Error: Bad parameters or is Down!".format(ip))
+                            print("- Error: Bad parameters or is Down!")
+                            self.bad_ip.grid(row=4, column=1)
+                            responses.append(self.response)
+                            break
 
         with open(self.timestamp(' Ping Reports.txt'), 'w+') as add:
             for ip in report:
@@ -249,7 +303,109 @@ class IPfunctions(tk.Frame):
         return self.bad_ip.grid_forget(), self.ipadded.grid_forget(), self.newnoip.grid_forget(), \
                self.scanning.grid_forget(), self.scan_done.grid_remove(), self.scan_down.grid_remove(), \
                self.invalid_detected.grid_forget(), self.dupe_detected.grid_forget(), self.newnoip.grid_forget(), \
-               self.reports_cleared.grid_forget()
+               self.reports_cleared.grid_forget()  # , self.label_default.grid_forget()
 
     def close_window(self):
         self.destroy()
+
+    def appendscanfile(self):
+
+        settings = open("Settings.txt", "a")
+
+        if self.default_scan:
+            self.default_scan = True
+            print("[Debug append] DefaultScanFile is set to True on settings! Exiting...")
+        else:
+            with open("Settings.txt", mode='r') as s:
+                settinglines = [ip.strip() for ip in s.readlines()]
+                print(settinglines)
+
+            with open('Settings.txt', mode='a') as add:
+                self.settings_False()
+                settinglines[1] = add.write("{}".format(self.customscanfile))
+                self.scanfile = self.customscanfile
+                print(self.scanfile)
+                settings.close()
+                self.label_newscanfile.grid()
+
+            settings.close()
+
+    def Select_file(self):
+        """Scans Root of App and Folder called UserData/Lists for previous saved IP Lists
+
+                - dir_name = tk.filedialog.askdirectory() # This selects a folder directory
+                - filedialog.asksaveasfilename(initialdir="/",
+                  title="Select file", filetypes=(("Txt File", "*.txt"),
+                  ("all files", "*.*"))) # This asks to save
+
+        """
+
+        self.customscanfile = tk.filedialog.askopenfilename(initialdir="/", title="Select file",
+                                                            filetypes=(("Txt Files", "*.txt"),
+                                                                       ("all files", "*.*")))
+
+        self.change = []
+        self.change.append(self.customscanfile)
+        print(self.customscanfile)
+
+        if "" in self.change:
+            print("[Debug] No change was made... exiting.")
+            return
+        else:
+            with open("Settings.txt", "r") as s:
+                print("[Debug] DefaultScanFile is set to False on settings!")
+                self.default_scan = False
+                self.appendscanfile()
+                print("[Debug] Scan File directory changed...")
+                s.close()
+
+    def settingsdefault(self):
+
+        settings = open("Settings.txt", "w+")
+
+        with open("Settings.txt", mode='w+') as s:
+            s.write("DefaultScanFile=True\n")
+            s.write("DefaultScanDir=\n")
+
+        return print("[IPPing] Settings have been reset to Default!"), self.label_default.grid()
+
+    def settings_False(self):
+
+        settings = open("Settings.txt", "w+")
+
+        with open("Settings.txt", mode='w+') as s:
+            s.write("DefaultScanFile=False\n")
+            s.write("DefaultScanDir=\n")
+
+        return print("[IPPing] Settings have been reset to Default!")
+
+    def customscandir(self):
+
+        with open("Settings.txt", mode='r') as s:
+            settinglines = [ip.strip() for ip in s.readlines()]
+            print(settinglines)
+
+        if "_" in settinglines[2]:
+            with open("IPlist.txt", "r") as ips_file:
+                ips = [ip.strip() for ip in ips_file.readlines()]
+        else:
+            return print("Nothing found on last line")
+
+        return settinglines[2]
+
+    def test(self):
+
+        settings = open("Settings.txt")
+        with open("Settings.txt", mode='r') as s:
+            settinglines = [ip.strip() for ip in s.readlines()]
+            print(settinglines)
+
+        with open('Settings.txt', mode='r') as add:
+            print(settinglines[1])
+            if "DefaultScanDir= " in settinglines[1]:
+                print("test")
+            else:
+
+                print("test")
+
+            settings.close()
