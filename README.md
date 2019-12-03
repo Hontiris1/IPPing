@@ -1,3 +1,6 @@
+![GitHub Logo](images\preview.png)
+Format: ![Alt Text](https://gyazo.com/d3d6eca4803240b70890e7c582b98eb0)
+
 # IPPing
 This script main purpose is to ping every IP on a txt file, and report data for each individual IP.
 
