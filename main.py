@@ -15,6 +15,10 @@ class GUIframeworkmain(ipfunc.IPfunctions):
     def __init__(self, parent, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
 
+        #Start a function to make changes to Settings.txt
+        self.intdefaultfiles()
+        self.intdefaultscan()
+
         self.l_sep = tk.Label(self, text="___________").grid(row=1)
         self.iptxt = tk.Label(self, text="Enter IP:", font=("Arial Bold", 9)).grid(row=2)
 
@@ -22,42 +26,58 @@ class GUIframeworkmain(ipfunc.IPfunctions):
 
         tk.Button(self, bg="green", text='Add New IP', command=self.newip).grid(row=0, column=0, pady=2),
         tk.Button(self, text='Open IPlist', command=self.contents).grid(row=0, column=1, sticky=tk.SE, pady=2),
-        tk.Button(self, text='Clear Reports', command=self.reports).grid(row=0, column=3, sticky=tk.SE, pady=2),
+        tk.Button(self, text='Clear Reports', command=self.clear_reports).grid(row=0, column=3, sticky=tk.SE, pady=2),
         tk.Button(self, text='Ping All IPs', command=self.scanlist).grid(row=0, column=2, sticky=tk.SE, pady=2),
         tk.Button(self, text='Exit', command=self.quit).grid(row=0, column=4, pady=2)
-
-        self.scanfile = ""
-        self.default_scan = True
-
-        self.validip = False
-        self.dupeip = False
 
         self.e1 = tk.Entry(self, bg='grey', fg='white', font=("Arial Bold",))
         self.e1.grid(row=2, column=1)
 
     def settings(self):
+
         print("[IPPing] Settings GUI has been started")
-        win = tk.Toplevel()
-        win.wm_title("IPPing Settings")
-        win.geometry("150x200+700+300")
+
+        self.win = tk.Toplevel()
+        self.win.wm_title("IPPing Settings")
+        self.win.geometry("150x250+700+300")
+        self.win.resizable(False, False)
+        self.win.iconbitmap('images\\logo.ico')
 
         # Logo for settings GUI
         self.image2 = tk.PhotoImage(file="images\\settings.png")
-        self.limage = tk.Label(win, image=self.image2)
+        self.limage = tk.Label(self.win, image=self.image2)
         self.limage.grid()
 
         # Buttons for settings GUI
-        l = tk.Label(win, text="Select File to Scan From")
-        l.grid(row=1, column=0)
-        b = tk.Button(win, text="Select file", command=self.Select_file)
+        a = tk.Label(self.win, text="Select File to Scan From", font=("Arial Bold", 8))
+        a.grid(row=1, column=0)
+        b = tk.Button(self.win, text="Select file", command=self.Select_file)
         b.grid(row=2, column=0)
 
-        default_button = tk.Button(win, text="Default Settings", command=self.settingsdefault)
-        default_button.grid(row=5, column=0)
+        c = tk.Label(self.win, text="Packet Settings", font=("Arial Bold", 8))
+        c.grid(row=3, column=0)
+        d = tk.Button(self.win, text="Packets", command=self.packetsset)
+        d.grid(row=5, column=0)
 
-        # Notification labels for the settings GUI
-        self.label_newscanfile = tk.Label(win, text="IP Scan Directory\n" "Has Been Changed", fg="green", font=("Arial Bold", 9))
-        self.label_default = tk.Label(win, text="Settings Generated!", fg="green", font=("Arial Bold", 9))
+        default_button = tk.Button(self.win, text="Default Settings", command=self.settingsdefault)
+        default_button.grid(row=7, column=0)
+
+    def packetsset(self):
+
+        self.pack = tk.Toplevel()
+        self.pack.wm_title("IPPing Settings")
+        self.pack.geometry("180x150+500+300")
+        self.pack.resizable(False, False)
+        self.pack.iconbitmap('images\\logo.ico')
+
+        self.scale_pack = tk.Scale(self.pack, from_=0, to=10, orient=tk.HORIZONTAL, width=12)
+        self.scale_pack.grid(row=4, column=0)
+
+        l = tk.Label(self.pack, text="Change the amount of packets\n" "That are sent per IP Scan", font=("Arial Bold", 8))
+        l.grid(row=3, column=0)
+
+        b = tk.Button(self.pack, text="Change Packet Amount", command=self.changepackets)
+        b.grid(row=5, column=0)
 
 
 class App(tk.Tk):
@@ -71,7 +91,9 @@ class App(tk.Tk):
 
         # self.grid()
         self.title("IPPing")
-        self.geometry("450x155+900+300")
+        self.geometry("465x175+900+300")
+        self.resizable(False, False)
+        self.iconbitmap('images\\logo.ico')
 
         self.image1 = tk.PhotoImage(file="images\\bgg.png")
         self.label_for_image = tk.Label(self, image=self.image1)
