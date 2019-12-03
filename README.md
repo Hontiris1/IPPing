@@ -5,7 +5,7 @@ This script main purpose is to ping every IP on a txt file, and report data for 
 
 *Future Updates*
 
-- [] Implement Multi Threading.
+- [ ] Implement Multi Threading.
 
 
 *Added*
