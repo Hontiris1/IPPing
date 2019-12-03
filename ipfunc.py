@@ -417,7 +417,7 @@ class IPfunctions(tk.Frame):
         """This function will check the IP entered by the user, it will make sure
         that its a proper IPv4 or IPv6 IP address then return a True or False"""
 
-        notifications = tk.Label(self, text="Hello moto!", fg="green", font=("Arial Bold", 9))
+        notifications = tk.Label(self, text="Hello moto!", fg="red", font=("Arial Bold", 9))
 
         try:
             socket.inet_aton(self.e1.get())
