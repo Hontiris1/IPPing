@@ -1,13 +1,13 @@
 import os
-import re
 import time
 import tkinter as tk
-from time import sleep
-from tkinter import filedialog
-from tkinter import messagebox
-from os import startfile
+import os.path
 import socket
 import datetime
+
+from os import startfile
+from tkinter import filedialog
+from tkinter import messagebox
 from tkinter.ttk import Progressbar
 
 
@@ -35,6 +35,16 @@ class IPfunctions(tk.Frame):
         """
 
         notifications = tk.Label(self, text="Thank you for using IPPing!", fg="green", font=("Arial Bold", 9))
+
+        # This checks if IPlist.txt is empty or not
+        if os.stat("IPlist.txt").st_size == 0:
+            notifications['text'] = 'IPlist.txt is empty!'
+            notifications['fg'] = 'red'
+            notifications.grid(row=4, column=1)
+            self.after(2000, notifications.destroy)
+            return print("[IPPing] No IP/Domain was found inside IPlist.txt")
+        else:
+            print("[IPPing] IPlist.txt does have an IP/Domain continuing...")
 
         notifications['text'] = 'Scanning IPlist.txt please wait...'
         notifications['fg'] = 'green'
@@ -95,7 +105,7 @@ class IPfunctions(tk.Frame):
                         responses.append(self.response)
                         break
 
-        with open(self.timestamp(' Ping Reports.txt'), 'w+') as add:
+        with open(self.timestamp(" Ping_Reports.txt"), 'w+') as add:
             for ip in report:
                 add.write(ip)
 
@@ -113,6 +123,7 @@ class IPfunctions(tk.Frame):
                startfile("IPreport.txt"), print("[Debug] This are the ping responses per IP"), \
                print(responses), self.after(4000, notifications.destroy)
 
+
     def newip(self):
 
         """
@@ -123,17 +134,34 @@ class IPfunctions(tk.Frame):
          If input_data is a str newip will proceed to check that the str has a "." and
          that self.dupeip is true
          """
+        #  This line open the default file and seeks it back to 0, very important!
+        #ipopen = open("IPlist.txt")
+        #ipopen.seek(0), ipopen.close()
 
         notifications = tk.Label(self, text="Thank you for using IPPing!", fg="green", font=("Arial Bold", 9))
 
-        self.checkip()
-        self.checkduplicate()
-
         input_data = self.e1.get()
 
-        #  This line open the default file and seeks it back to 0, very import!
-        ipopen = open("IPlist.txt")
-        ipopen.seek(0), ipopen.close()
+        if input_data == "":
+            return print("[Debug] No input found!")
+        else:
+            print("[Debug] Input Found... Proceeding")
+
+        # This checks if IPlist.txt is empty or not
+        if os.stat("IPlist.txt").st_size == 0:
+            self.checkip()
+
+            with open('IPlist.txt', mode='a') as add_ip:
+                add_ip.seek(0)
+                add_ip.write("{}\n".format(input_data))
+                notifications['text'] = 'IP/Domain has been added!'
+                notifications.grid(row=4, column=1)
+                self.after(2000, notifications.destroy)
+                add_ip.seek(0)
+                print("[Debug] IP address {} has been added!".format(input_data))
+            return print("[IPPing] New IP/Domain added!")
+        else:
+            print("[IPPing] IPlist.txt contains 1 or more IP's proceeding...")
 
         if len(input_data) > 15 or "":
             notifications['text'] = 'Please enter a valid IP/Domain'
@@ -143,16 +171,22 @@ class IPfunctions(tk.Frame):
         else:
             print("[Debug] Input data is less than 15 characters, Passing onto next line")
 
+        self.checkip()
+        self.checkduplicate()
+
         try:
             input_data = int(input_data) or float(input_data)
             if self.validip and self.dupeip:
                 with open('IPlist.txt', mode='a') as add_ip:
+                    add_ip.seek(0)
                     add_ip.write("{}\n".format(input_data))
-                    notifications['text'] = 'IP has been successfully added!'
+                    notifications['text'] = 'IP has been added!'
                     notifications.grid(row=4, column=1)
+                    add_ip.seek(0)
                     print("[Debug] IP address {} has been added!".format(input_data))
             else:
-                self.no_ip = messagebox.showerror('IPPing', 'Invalid IP or duplicate!')
+                notifications['text'] = 'Invalid IPv4/IPv6 detected!'
+                notifications.grid(row=5, column=1)
                 print("[Debug Error] Is not valid IPv4/IPv6 or is duplicate on IPlist.txt")
             print("[Debug] User input is int ")  # This section detects integers and floats
         except ValueError:
@@ -160,12 +194,14 @@ class IPfunctions(tk.Frame):
             print("[Debug] User input is Str")  # This section detects the input as a str
             if "." in input_data and self.dupeip:
                 with open('IPlist.txt', mode='a') as add_domain:
+                    add_domain.seek(0)
                     add_domain.write("{}\n".format(input_data))
                     print("Domain {} has been added!".format(input_data))
-                    notifications['text'] = 'Domain has been successfully added'
+                    notifications['text'] = 'IP/Domain has been added!'
                     notifications.grid(row=4, column=1)
+                    add_domain.seek(0)
             else:
-                notifications['text'] = 'Please enter a valid IP/Domain'
+                notifications['text'] = 'Invalid IP or Duplicate found!'
                 notifications['fg'] = 'red'
                 notifications.grid(row=4, column=1)
                 print("[Debug Error] Incorrect Domain entry or is duplicate!")
@@ -341,7 +377,7 @@ class IPfunctions(tk.Frame):
 
         #  User GUI Notification
         l_packets.grid(row=7, column=0)
-        self.after(2000, l_packets.destroy)
+        self.after(2500, l_packets.destroy)
 
     """------------------------------------------Backend Code Functions----------------------------------------------"""
 
@@ -417,18 +453,13 @@ class IPfunctions(tk.Frame):
         """This function will check the IP entered by the user, it will make sure
         that its a proper IPv4 or IPv6 IP address then return a True or False"""
 
-        notifications = tk.Label(self, text="Hello moto!", fg="red", font=("Arial Bold", 9))
-
         try:
             socket.inet_aton(self.e1.get())
             print("[Debug] validIP Set to True")
             self.validip = True
         except socket.error:
+            print("[Debug] is Valid IPv4/IPv6 Set to False")
             self.validip = False
-            print("[Debug Error] validIP Set to False")
-            notifications['text'] = 'Invalid IPv4/IPv6 detected!'
-            notifications.grid(row=5, column=1)
-            self.after(3000, notifications.destroy)
 
         return self.validip
 

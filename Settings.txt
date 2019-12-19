@@ -1,2 +1,5 @@
 DefaultScanFile=True
+DefaultPackets=True
+PacketsAmount=
+1
 DefaultScanDir=
