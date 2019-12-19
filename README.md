@@ -10,6 +10,12 @@ This script main purpose is to ping every IP on a txt file, and report data for 
 
 *Added*
 
+- [x] Added detection of screens width and height, then proceeds to center the scripts GUI's.
+- [x] Now scanning does not proceed if IPlist.txt is emopty and will display a - notification.
+- [x] Fixed bug, where if IP entry is empty it will still add it
+- [x] Fixed notifications overlap
+- [x] Fixed seeking of IPlist.txt back to 0
+- [x] Added the script icon to the window taskbar
 - [x] Re-coded the Notificiations system, removing over 40 lines of code. Now the Notifications label will update the TXT accordingly, A time has also been added so that the TXT label dissappears in a timely manner. Also other TXT labels have been added to lower rows so that overlapping does not occur.
 - [x] Implemented seperate packages GUI window, with a numbers slider option.
 - [x] Implemented seperate Settings GUI window.
