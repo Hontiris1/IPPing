@@ -20,12 +20,11 @@ class GUIframeworkmain(ipfunc.IPfunctions):
         self.intdefaultfiles()
         self.intdefaultscan()
 
-        self.l_sep = tk.Label(self, text="___________").grid(row=1)
         self.iptxt = tk.Label(self, text="Enter IP:", font=("Arial Bold", 9)).grid(row=2)
 
         tk.Button(self, bg="green", text='Settings', command=self.settings,relief="ridge").grid(row=0, sticky=tk.SW, column=1, pady=2),
 
-        tk.Button(self, bg="green", text='Add New IP', command=self.newip, relief="ridge").grid(row=0, column=0, pady=2),
+        tk.Button(self, bg="green", text='Add New IP', command=self.newip, relief="ridge").grid(row=0, column=0, pady=2)
         tk.Button(self, text='Open IPlist', command=self.contents).grid(row=0, column=1, sticky=tk.SE, pady=2),
         tk.Button(self, text='Clear Reports', command=self.clear_reports).grid(row=0, column=3, sticky=tk.SE, pady=2),
         tk.Button(self, text='Ping All IPs', command=self.scanlist).grid(row=0, column=2, sticky=tk.SE, pady=2),
@@ -48,10 +47,10 @@ class GUIframeworkmain(ipfunc.IPfunctions):
         screen_width = self.win.winfo_screenwidth()
         screen_height = self.win.winfo_screenheight()
 
-        x_cordinate = int((screen_width / 2) - (window_width / 2))
-        y_cordinate = int((screen_height / 2) - (window_height / 2))
+        x_coordinate = int((screen_width / 2) - (window_width / 2))
+        y_coordinate = int((screen_height / 3) - (window_height / 2))
 
-        self.win.geometry("{}x{}+{}+{}".format(window_width, window_height, x_cordinate, y_cordinate))
+        self.win.geometry("{}x{}+{}+{}".format(window_width, window_height, x_coordinate, y_coordinate))
 
         # Logo for settings GUI
         self.image2 = tk.PhotoImage(file="images\\settings.png")
@@ -72,6 +71,7 @@ class GUIframeworkmain(ipfunc.IPfunctions):
         default_button = tk.Button(self.win, text="Default Settings", command=self.settingsdefault)
         default_button.grid(row=6, column=0)
 
+
     def packetsset(self):
         print("[IPPing] Packet Settings GUI successfully open")
 
@@ -86,10 +86,10 @@ class GUIframeworkmain(ipfunc.IPfunctions):
         screen_width = self.pack.winfo_screenwidth()
         screen_height = self.pack.winfo_screenheight()
 
-        x_cordinate = int((screen_width / 2) - (window_width / 2))
-        y_cordinate = int((screen_height / 2) - (window_height / 2))
+        x_coordinate = int((screen_width / 2) - (window_width / 2))
+        y_coordinate = int((screen_height / 3) - (window_height / 2))
 
-        self.pack.geometry("{}x{}+{}+{}".format(window_width, window_height, x_cordinate, y_cordinate))
+        self.pack.geometry("{}x{}+{}+{}".format(window_width, window_height, x_coordinate, y_coordinate))
 
         self.scale_pack = tk.Scale(self.pack, from_=0, to=10, orient=tk.HORIZONTAL, width=12)
         self.scale_pack.grid(row=4, column=0)
@@ -116,11 +116,12 @@ class App(tk.Tk):
 
         screen_width = self.winfo_screenwidth()
         screen_height = self.winfo_screenheight()
+        print("[Debug] IPPing has detected screen width {0} height {1}".format(screen_width, screen_height))
 
-        x_cordinate = int((screen_width / 2) - (window_width / 2))
-        y_cordinate = int((screen_height / 2) - (window_height / 2))
+        x_coordinate = int((screen_width / 2) - (window_width / 2))
+        y_coordinate = int((screen_height / 2) - (window_height / 2))
 
-        self.geometry("{}x{}+{}+{}".format(window_width, window_height, x_cordinate, y_cordinate))
+        self.geometry("{}x{}+{}+{}".format(window_width, window_height, x_coordinate, y_coordinate))
 
         self.title("IPPing")
         self.resizable(False, False)
@@ -139,4 +140,4 @@ class App(tk.Tk):
 if __name__ == '__main__':
     """this runs the App class which is using the Tkinter module"""
     App().mainloop()
-    App.iconbitmap("images\\logo.ico")
+    App.iconbitmap('images\\logo.ico')
